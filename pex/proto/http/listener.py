@@ -79,6 +79,7 @@ class HTTPListener(object):
 
         self.host = host
         self.port = int(port)
+        self.server = (host, port)
 
         self.sock = None
         self.methods = methods
