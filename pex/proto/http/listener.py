@@ -99,6 +99,15 @@ class HTTPListener(object):
         except Exception:
             raise RuntimeError(f"Failed to start HTTP listener on port {str(self.port)}!")
 
+    def update_methods(self, methods: dict) -> None:
+        """ Update HTTP listener methods.
+
+        :param dict methods: methods
+        :return None: None
+        """
+
+        self.methods.update(methods)
+
     def stop(self) -> None:
         """ Stop HTTP listener.
 
