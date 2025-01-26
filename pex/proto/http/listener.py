@@ -82,7 +82,9 @@ class HTTPListener(object):
         self.server = (host, port)
 
         self.sock = None
-        self.methods = methods
+        self.methods = {}
+
+        self.update_methods(methods)
 
     def listen(self) -> None:
         """ Start HTTP listener.
@@ -92,9 +94,6 @@ class HTTPListener(object):
         """
 
         try:
-            for method in self.methods:
-                setattr(self.handler, f"do_{method.upper()}", self.methods[method])
-
             self.sock = PrimitiveServer((self.host, self.port), self.handler)
         except Exception:
             raise RuntimeError(f"Failed to start HTTP listener on port {str(self.port)}!")
@@ -107,6 +106,9 @@ class HTTPListener(object):
         """
 
         self.methods.update(methods)
+
+        for method in self.methods:
+            setattr(self.handler, f"do_{method.upper()}", self.methods[method])
 
     def stop(self) -> None:
         """ Stop HTTP listener.
