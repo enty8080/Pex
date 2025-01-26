@@ -90,11 +90,10 @@ class TLVServerHTTP(object):
             if self.callback:
                 self.callback(TLVPacket(data))
 
-        self.server.methods = {
+        self.server.update_methods({
             'GET': get,
             'POST': post
-        }
-        self.server.listen()
+        })
         self.running = True
 
     def randomize_urlpath(self, length: int = 8) -> str:
