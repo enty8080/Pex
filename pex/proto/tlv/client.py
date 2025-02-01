@@ -85,26 +85,41 @@ class TLVServerHTTP(object):
             data = request.rfile.read(length)
 
             request.send_status(200)
-            request.wfile.write(self.egress)
+
+            try:
+                request.wfile.write(self.egress)
+            except Exception:
+                pass
 
             if self.callback:
                 self.callback(TLVPacket(data))
 
-        self.server.update_methods({
-            'GET': get,
-            'POST': post
+        self.server.methods.update({
+            self.urlpath: {
+                'GET': get,
+                'POST': post
+            }
         })
-        self.running = True
 
-    def randomize_urlpath(self, length: int = 8) -> str:
-        """ Generate random URL path.
+        self.get = get
+        self.post = post
 
-        :param int length: URL path length
-        :return str: new URL path
+    def set_urlpath(self, urlpath: str) -> None:
+        """ Set URL path.
+
+        :param str urlpath: URL path to set
+        :return None: None
         """
 
-        self.urlpath = '/' + String().random_string(length)
-        return self.urlpath
+        self.server.methods.pop(self.urlpath)
+        self.urlpath = '/' + urlpath
+
+        self.server.methods.update({
+            self.urlpath: {
+                'GET': self.get,
+                'POST': self.post
+            }
+        })
 
     def send(self, packet: TLVPacket) -> None:
         """ Send TLV packet to the client.
@@ -115,29 +130,13 @@ class TLVServerHTTP(object):
 
         self.egress += packet.buffer
 
-    def loop(self) -> None:
-        """ Event loop.
-
-        :return None: None
-        """
-
-        while self.running:
-            try:
-                self.server.accept()
-
-            except Exception:
-                self.close()
-
     def close(self) -> None:
         """ Close and stop server.
 
         :return None: None
         """
 
-        self.running = False
-
-        if self.server:
-            self.server.stop()
+        self.server.methods.pop(self.urlpath)
 
 
 class TLVClient(object):
